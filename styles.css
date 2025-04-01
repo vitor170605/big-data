@@ -1,0 +1,157 @@
+/* ESTILOS GERAIS */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* BARRA SUPERIOR */
+#header {
+    background-color: #181a2e;
+    color: white;
+    padding: 12px 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+#header h1 {
+    margin: 0;
+    font-size: 1.5em;
+    text-align: center;
+}
+
+/* CONTROLES - VERSÃO FINAL PERFEITAMENTE ALINHADA */
+#controls {
+    margin-top: 60px;
+    padding: 15px 20px;
+    background-color: white;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+}
+
+.filters-container {
+    display: flex;
+    align-items: flex-end; /* Alinha na base */
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-group label {
+    font-size: 0.85em;
+    color: #555;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.filter-group select, 
+.filter-group input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9em;
+    width: 200px; /* Largura fixa */
+    height: 38px;
+    box-sizing: border-box;
+}
+
+#applyFilters {
+    background-color: #1a237e;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    height: 38px; /* Mesma altura dos inputs */
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#applyFilters:hover {
+    background-color: #303f9f;
+}
+
+/* MAPA */
+#map {
+    height: calc(100vh - 120px);
+    width: 100%;
+}
+
+/* Estilos para elementos do mapa */
+.leaflet-popup-content {
+    font-size: 14px;
+}
+
+.leaflet-popup-content b {
+    color: #1a237e;
+}
+
+.info {
+    padding: 6px 8px;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+}
+
+.legend {
+    line-height: 18px;
+    color: #555;
+    font-size: 12px;
+}
+
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+}
+
+/* Responsividade */
+@media (min-width: 768px) {
+    #controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: flex-end;
+    }
+    
+    .filter-group {
+        margin-bottom: 0;
+        flex: 1;
+        min-width: 150px;
+    }
+    
+    #applyFilters {
+        height: fit-content;
+    }
+}
+
+#stats-panel {
+    position: absolute;
+    top: 120px;
+    right: 20px;
+    background: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+    max-width: 250px;
+}
+
+#stats-panel h3, #stats-panel h4 {
+    margin-top: 0;
+    color: #1a237e;
+}
+
+#bairros-list {
+    max-height: 200px;
+    overflow-y: auto;
+    padding-left: 20px;
+}
