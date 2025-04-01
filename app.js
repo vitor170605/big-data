@@ -1,75 +1,90 @@
-// Configuração inicial do mapa
+// Configuração do mapa
 const map = L.map('map').setView([-22.9068, -43.1729], 11);
-
-// Adiciona camada base do OpenStreetMap
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Variáveis globais
-let crimeMarkers = L.layerGroup().addTo(map);
-let currentData = [];
+let tiroteiosLayer = L.layerGroup().addTo(map);
 
-// Função para carregar dados da API Python
-async function loadCrimeData(filters = {}) {
+// Cores para os marcadores baseados em vítimas
+function getMarkerColor(vitimas) {
+    return vitimas > 0 ? '#ff0000' : '#ff7800';
+}
+
+// Função para carregar dados de tiroteios
+async function loadTiroteios() {
     try {
-        const params = new URLSearchParams();
-        if (filters.tipo) params.append('tipo', filters.tipo);
-        if (filters.bairro) params.append('bairro', filters.bairro);
-
-        const response = await axios.get('http://localhost:5000/api/ocorrencias', { params });
-        currentData = response.data;
-
-        // Processa os dados e adiciona ao mapa
-        updateMapWithData(currentData);
+        const response = await fetch('http://localhost:5000/api/tiroteios');
+        const data = await response.json();
+        
+        updateMapWithData(data);
+        updateStats(data);
+        
     } catch (error) {
-        console.error('Erro ao carregar dados:', error);
+        console.error("Erro ao carregar tiroteios:", error);
+        // Pode adicionar aqui uma notificação para o usuário
     }
 }
 
-// Função para atualizar o mapa com os dados
+// Atualiza o mapa com os dados
 function updateMapWithData(data) {
-    // Limpa marcadores anteriores
-    crimeMarkers.clearLayers();
-
-    // Adiciona novos marcadores
-    data.forEach(crime => {
-        const marker = L.circleMarker([crime.lat, crime.lng], {
+    tiroteiosLayer.clearLayers();
+    
+    data.forEach(evento => {
+        const marker = L.circleMarker([evento.lat, evento.lng], {
             radius: 8,
-            fillColor: getColorForCrimeType(crime.tipo),
+            fillColor: getMarkerColor(evento.vitimas),
             color: '#000',
             weight: 1,
             opacity: 1,
             fillOpacity: 0.8
-        }).addTo(crimeMarkers);
-
+        }).addTo(tiroteiosLayer);
+        
         marker.bindPopup(`
-            <b>${crime.tipo}</b><br>
-            Bairro: ${crime.bairro}<br>
-            Data: ${crime.data}
+            <b>${evento.tipo}</b><br>
+            <b>Bairro:</b> ${evento.bairro}<br>
+            <b>Data:</b> ${evento.data} ${evento.hora}<br>
+            <b>Vítimas:</b> ${evento.vitimas}<br>
+            <small>${evento.descricao}</small>
         `);
     });
 }
 
-// Função auxiliar para cores baseadas no tipo de crime
-function getColorForCrimeType(type) {
-    const colors = {
-        'Roubo': '#ff0000',
-        'Furto': '#ff9900',
-        'Homicídio': '#990000',
-        // Adicione mais mapeamentos conforme necessário
-    };
-    return colors[type] || '#555555';
+// Atualiza o painel de estatísticas
+function updateStats(data) {
+    fetch('http://localhost:5000/api/estatisticas')
+        .then(response => response.json())
+        .then(stats => {
+            document.getElementById('total-tiroteios').textContent = stats.total_tiroteios;
+            document.getElementById('total-vitimas').textContent = stats.total_vitimas;
+            document.getElementById('ultima-atualizacao').textContent = stats.ultima_atualizacao;
+            
+            // Atualiza lista de bairros
+            const bairrosList = document.getElementById('bairros-list');
+            bairrosList.innerHTML = '';
+            
+            for (const [bairro, count] of Object.entries(stats.por_bairro)) {
+                const li = document.createElement('li');
+                li.textContent = `${bairro}: ${count} ocorrência(s)`;
+                bairrosList.appendChild(li);
+            }
+        });
 }
 
-// Event listeners para filtros
+// Filtros
 document.getElementById('applyFilters').addEventListener('click', () => {
     const filters = {
-        tipo: document.getElementById('crimeType').value,
         bairro: document.getElementById('neighborhood').value
     };
-    loadCrimeData(filters);
+    
+    fetch(`http://localhost:5000/api/tiroteios?bairro=${encodeURIComponent(filters.bairro)}`)
+        .then(response => response.json())
+        .then(data => updateMapWithData(data));
 });
 
-// Carrega os dados quando a página é aberta
-document.addEventListener('DOMContentLoaded', () => loadCrimeData());
+function exportToCSV() {
+    window.open('http://localhost:5000/api/tiroteios?format=csv');
+}
+
+// Carrega os dados ao iniciar
+document.addEventListener('DOMContentLoaded', loadTiroteios);
