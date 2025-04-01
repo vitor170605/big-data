@@ -1,76 +1,60 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa Criminal - Rio de Janeiro</title>
+    <header id="header">
+        <h1>Mapa Criminal - Rio de Janeiro</h1>
+    </header>
+    <!-- Vincule seu arquivo CSS aqui -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- Links para bibliotecas externas -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
-
-        #map {
-            height: 70vh;
-            width: 100%;
-        }
-
-        #controls {
-            padding: 15px;
-            background: #f0f0f0;
-        }
-
-        .info {
-            padding: 6px 8px;
-            background: white;
-            border-radius: 5px;
-        }
-
-        .legend {
-            line-height: 18px;
-            color: #555;
-        }
-
-        .legend i {
-            width: 18px;
-            height: 18px;
-            float: left;
-            margin-right: 8px;
-            opacity: 0.7;
-        }
-
-        .filter-group {
-            margin-bottom: 10px;
-        }
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        #map { height: 70vh; width: 100%; }
+        #controls { padding: 15px; background: #f0f0f0; }
+        .info { padding: 6px 8px; background: white; border-radius: 5px; }
+        .legend { line-height: 18px; color: #555; }
+        .legend i { width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7; }
+        .filter-group { margin-bottom: 10px; }
     </style>
 </head>
-
 <body>
+    <!-- Área de controles -->
     <div id="controls">
-        <h1>Mapa Criminal - Rio de Janeiro</h1>
-        <div class="filter-group">
-            <label for="crimeType">Tipo de Crime:</label>
-            <select id="crimeType">
-                <option value="">Todos</option>
-                <option value="Roubo">Roubo</option>
-                <option value="Furto">Furto</option>
-                <!-- Adicione mais opções conforme necessário -->
-            </select>
+        <div class="filters-container"> <!-- Nova div container -->
+            <div class="filter-group">
+                <label for="crimeType">Tipo de Crime:</label>
+                <select id="crimeType">
+                    <option value="">Todos</option>
+                    <option value="Roubo">Roubo</option>
+                    <option value="Furto">Furto</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="neighborhood">Bairro:</label>
+                <input type="text" id="neighborhood" placeholder="Filtrar por bairro">
+            </div>
+            <button id="applyFilters">Aplicar Filtros</button>
         </div>
-        <div class="filter-group">
-            <label for="neighborhood">Bairro:</label>
-            <input type="text" id="neighborhood" placeholder="Filtrar por bairro">
-        </div>
-        <button id="applyFilters">Aplicar Filtros</button>
     </div>
+    <!-- Mapa -->
     <div id="map"></div>
+    <div id="stats-panel">
+        <h3>Estatísticas</h3>
+        <p>Total de Tiroteios: <span id="total-tiroteios">0</span></p>
+        <p>Total de Vítimas: <span id="total-vitimas">0</span></p>
+        <p>Última Atualização: <span id="ultima-atualizacao">-</span></p>
+        
+        <h4>Ocorrências por Bairro</h4>
+        <ul id="bairros-list"></ul>
+    </div>
 
+    <button onclick="exportToCSV()">Exportar para CSV</button>
+    
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="app.js"></script>
 </body>
-
 </html>
