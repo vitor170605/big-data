@@ -21,7 +21,7 @@ def get_ocorrencias():
     data_inicio = request.args.get('data_inicio')
     data_fim = request.args.get('data_fim')
     
-    # Filtrar dados (em produção, substitua por consulta real ao banco/API)
+    #Filtrar ,dados (em produção, substitua por consulta real ao banco/API)
     filtered_data = MOCK_DATA
     
     if bairro:
