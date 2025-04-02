@@ -3,14 +3,15 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #dcdadacd;
 }
 
 /* BARRA SUPERIOR */
 #header {
     background-color: #181a2e;
     color: white;
-    padding: 12px 20px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    padding: 16px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     position: fixed;
     width: 100%;
     top: 0;
@@ -28,19 +29,25 @@ body {
     margin-top: 60px;
     padding: 15px 20px;
     background-color: white;
-    box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
 }
 
 .filters-container {
     display: flex;
-    align-items: flex-end; /* Alinha na base */
+    align-items: flex-end;
+    /* Alinha na base */
     gap: 15px;
     flex-wrap: wrap;
+    justify-content: center;
+    padding-left: 650px;
+    */
 }
 
 .filter-group {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    text-align: center;
 }
 
 .filter-group label {
@@ -50,25 +57,29 @@ body {
     font-weight: 500;
 }
 
-.filter-group select, 
+.filter-group select,
 .filter-group input {
     padding: 8px 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 0.9em;
-    width: 200px; /* Largura fixa */
+    width: 200px;
+    /* Largura fixa */
     height: 38px;
     box-sizing: border-box;
+    justify-content: center;
+    text-align: center;
 }
 
 #applyFilters {
     background-color: #1a237e;
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 11px 20px;
     border-radius: 4px;
     font-size: 0.9em;
-    height: 38px; /* Mesma altura dos inputs */
+    height: 38px;
+    /* Mesma altura dos inputs */
     cursor: pointer;
     transition: background-color 0.3s;
 }
@@ -79,8 +90,27 @@ body {
 
 /* MAPA */
 #map {
-    height: calc(100vh - 120px);
+
     width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+
+    max-width: 900px;
+    /* Define um limite para a largura */
+    margin: 20px auto;
+    /* Centraliza horizontalmente e adiciona espaçamento */
+    padding: 15px;
+    /* Espaçamento interno para um visual mais clean */
+    background: #fff;
+    /* Fundo branco para destaque */
+    border: 3px solid #ddd;
+    /* Borda sutil */
+    border-radius: 15px;
+    /* Bordas arredondadas */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    /* Sombra para um efeito moderno */
 }
 
 /* Estilos para elementos do mapa */
@@ -96,7 +126,7 @@ body {
     padding: 6px 8px;
     background: white;
     border-radius: 5px;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
 }
 
 .legend {
@@ -121,13 +151,13 @@ body {
         gap: 15px;
         align-items: flex-end;
     }
-    
+
     .filter-group {
         margin-bottom: 0;
         flex: 1;
         min-width: 150px;
     }
-    
+
     #applyFilters {
         height: fit-content;
     }
@@ -135,17 +165,18 @@ body {
 
 #stats-panel {
     position: absolute;
-    top: 120px;
-    right: 20px;
+    top: 350px;
+    right: 120px;
     background: white;
     padding: 15px;
     border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     max-width: 250px;
 }
 
-#stats-panel h3, #stats-panel h4 {
+#stats-panel h3,
+#stats-panel h4 {
     margin-top: 0;
     color: #1a237e;
 }
