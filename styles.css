@@ -28,27 +28,38 @@ body {
 #controls {
     margin-top: 60px;
     padding: 15px 20px;
-    background-color: white;
+    background-color: #f1f1f1fd;
     box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* Ajuste da área dos filtros */
 .filters-container {
     display: flex;
-    align-items: flex-end;
-    /* Alinha na base */
-    gap: 15px;
-    flex-wrap: wrap;
+    align-items: center;
+    /* Alinha verticalmente */
     justify-content: center;
-    padding-left: 650px;
-    */
+    /* Centraliza na horizontal */
+    flex-wrap: nowrap;
+    /* Impede que os elementos quebrem linha */
+    gap: 20px;
+    /* Espaço menor entre os elementos */
+    width: fit-content;
+    /* Mantém o tamanho ajustado ao conteúdo */
+    margin: 0 auto;
+    /* Centraliza na página */
 }
 
 .filter-group {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    /* Mantém label acima do input */
+    align-items: center;
+    /* Centraliza os textos acima */
     text-align: center;
+
 }
+
+
 
 .filter-group label {
     font-size: 0.85em;
@@ -57,20 +68,22 @@ body {
     font-weight: 500;
 }
 
+/* Campos de seleção e entrada de texto */
 .filter-group select,
 .filter-group input {
     padding: 8px 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 0.9em;
-    width: 200px;
-    /* Largura fixa */
+    width: 100%;
+    /* Largura flexível */
+    max-width: 200px;
     height: 38px;
     box-sizing: border-box;
-    justify-content: center;
     text-align: center;
 }
 
+/* Botão de aplicar filtros */
 #applyFilters {
     background-color: #1a237e;
     color: white;
@@ -78,26 +91,89 @@ body {
     padding: 11px 20px;
     border-radius: 4px;
     font-size: 0.9em;
-    height: 38px;
-    /* Mesma altura dos inputs */
+    height: 10px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.2s;
+    margin-top: 22px;
 }
 
 #applyFilters:hover {
     background-color: #303f9f;
+    transform: scale(1.05);
 }
+
+/* Responsividade para tablets */
+@media (max-width: 1024px) {
+    .filters-container {
+        justify-content: center;
+        /* Centraliza os filtros */
+        gap: 10px;
+    }
+
+    .filter-group select,
+    .filter-group input {
+        max-width: 180px;
+    }
+
+    #applyFilters {
+        padding: 10px 16px;
+    }
+}
+
+/* Responsividade para telas menores que 768px (celulares) */
+@media (max-width: 768px) {
+    .filters-container {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .filter-group {
+        width: 90%;
+    }
+
+    .filter-group select,
+    .filter-group input {
+        width: 100%;
+        max-width: 250px;
+    }
+
+    #applyFilters {
+        width: 90%;
+        max-width: 250px;
+        text-align: center;
+    }
+}
+
+/* Responsividade para celulares pequenos */
+@media (max-width: 480px) {
+
+    .filter-group select,
+    .filter-group input {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    #applyFilters {
+        width: 100%;
+        max-width: 100%;
+        font-size: 1em;
+        padding: 12px;
+    }
+}
+
 
 /* MAPA */
 #map {
 
-    width: 100%;
+
     display: flex;
     justify-content: center;
     align-items: center;
     width: 80%;
 
-    max-width: 900px;
+
+    max-width: 1200px;
     /* Define um limite para a largura */
     margin: 20px auto;
     /* Centraliza horizontalmente e adiciona espaçamento */
@@ -166,19 +242,63 @@ body {
 #stats-panel {
     position: absolute;
     top: 350px;
-    right: 120px;
+    right: 60px;
     background: white;
     padding: 15px;
-    border-radius: 5px;
+    border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     max-width: 250px;
+    transition: all 0.3s ease-in-out;
 }
 
+/* Estilização do texto dentro do painel */
 #stats-panel h3,
 #stats-panel h4 {
     margin-top: 0;
     color: #1a237e;
+    text-align: center;
+}
+
+/* Responsividade para telas menores que 1024px (tablets) */
+@media (max-width: 1024px) {
+    #stats-panel {
+        top: 120px;
+        /* Move o painel mais para cima */
+        right: 20px;
+        /* Aproxima da borda direita */
+    }
+}
+
+/* Responsividade para telas menores que 768px (celulares) */
+@media (max-width: 768px) {
+    #stats-panel {
+        position: fixed;
+        /* Fixa o painel na tela */
+        bottom: 20px;
+        /* Move para a parte inferior */
+        right: 50%;
+        transform: translateX(50%);
+        /* Centraliza horizontalmente */
+        max-width: 90%;
+        /* Aumenta a largura para melhor leitura */
+        text-align: center;
+        /* Centraliza o conteúdo */
+        padding: 12px;
+        border-radius: 12px;
+    }
+}
+
+/* Responsividade para telas menores que 480px (celulares pequenos) */
+@media (max-width: 480px) {
+    #stats-panel {
+        bottom: 10px;
+        /* Ajusta a posição */
+        max-width: 95%;
+        font-size: 14px;
+        /* Reduz o tamanho da fonte */
+        padding: 10px;
+    }
 }
 
 #bairros-list {
