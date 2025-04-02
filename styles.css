@@ -94,7 +94,7 @@ body {
     height: 10px;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
-    margin-top: 22px;
+    margin-top: 20px;
 }
 
 #applyFilters:hover {
