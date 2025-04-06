@@ -1,112 +1,169 @@
-from flask import Flask, jsonify, request
+import os
+from dotenv import load_dotenv
+from flask import Flask, jsonify
 from flask_cors import CORS
 import requests
 from datetime import datetime, timedelta
+import time
+from collections import defaultdict
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-# Configurações da API Fogo Cruzado
-FOGO_CRUZADO_API = "https://api.fogocruzado.org.br/api/v1/occurrences"
+# Configurações
+API_BASE = "https://api-service.fogocruzado.org.br/api/v2"
+AUTH_URL = f"{API_BASE}/auth/login"
 CITY = "Rio de Janeiro"
-STATE = "RJ"
-DAYS_BACK = 30  # Número de dias para buscar dados retroativos
+STATE_NAME = "Rio de Janeiro"
+DAYS_BACK = 30
+
+# Variáveis globais
+token_data = None
+state_uuid = None
+
+def debug_log(message):
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print(f"[{timestamp}] DEBUG: {message}")
+
+def authenticate():
+    global token_data
+    email = os.getenv('FOGO_CRUZADO_EMAIL')
+    password = os.getenv('FOGO_CRUZADO_PASSWORD')
+    
+    try:
+        response = requests.post(AUTH_URL, json={
+            "email": email,
+            "password": password
+        })
+        
+        if response.status_code == 201:
+            token_data = response.json()
+            return True
+        return False
+        
+    except Exception as e:
+        debug_log(f"Erro na autenticação: {str(e)}")
+        return False
+
+def get_auth_headers():
+    if not token_data or 'data' not in token_data:
+        raise ValueError("Token não disponível")
+    return {
+        'Authorization': f'Bearer {token_data["data"]["accessToken"]}',
+        'Accept': 'application/json'
+    }
+
+def get_state_uuid():
+    global state_uuid
+    try:
+        response = requests.get(f"{API_BASE}/states", headers=get_auth_headers())
+        if response.status_code == 200:
+            for state in response.json().get('data', []):
+                if state.get('name') == STATE_NAME:
+                    state_uuid = state.get('id')
+                    return state_uuid
+        return None
+    except Exception as e:
+        debug_log(f"Erro ao buscar estados: {str(e)}")
+        return None
+
+def format_event(event):
+    """Formata os dados de um evento para o frontend"""
+    return {
+        'id': event.get('id'),
+        'tipo': 'Tiroteio',
+        'bairro': event.get('neighborhood', {}).get('name', 'Desconhecido'),
+        'lat': float(event.get('latitude', 0)),
+        'lng': float(event.get('longitude', 0)),
+        'data': event.get('date', '').split('T')[0],
+        'hora': event.get('date', '').split('T')[1][:5] if 'T' in event.get('date', '') else '',
+        'vitimas': len(event.get('victims', [])),
+        'descricao': f"Tiroteio em {event.get('neighborhood', {}).get('name', 'local desconhecido')}",
+        'acao_policial': event.get('policeAction', False)
+    }
+
+def get_fallback_data():
+    return [{
+        "id": 1,
+        "tipo": "Tiroteio",
+        "bairro": "Complexo do Alemão",
+        "lat": -22.861808,
+        "lng": -43.252356,
+        "data": datetime.now().strftime('%Y-%m-%d'),
+        "hora": "14:30",
+        "vitimas": 0,
+        "descricao": "Dados locais - API indisponível"
+    }]
 
 @app.route('/api/tiroteios', methods=['GET'])
 def get_tiroteios():
-    """Endpoint para obter dados de tiroteios do Fogo Cruzado"""
+    global state_uuid
     try:
+        if not token_data and not authenticate():
+            return jsonify(get_fallback_data())
+        
+        if not state_uuid:
+            state_uuid = get_state_uuid()
+            if not state_uuid:
+                return jsonify(get_fallback_data())
+        
         date_end = datetime.now()
         date_start = date_end - timedelta(days=DAYS_BACK)
         
-        params = {
-            'state': STATE,
-            'city': CITY,
-            'date_start': date_start.strftime('%Y-%m-%d'),
-            'date_end': date_end.strftime('%Y-%m-%d'),
-            'limit': 500  # Limite máximo permitido pela API
-        }
+        response = requests.get(
+            f"{API_BASE}/occurrences",
+            headers=get_auth_headers(),
+            params={
+                'idState': state_uuid,
+                'city': CITY,
+                'date_start': date_start.strftime('%Y-%m-%d'),
+                'date_end': date_end.strftime('%Y-%m-%d'),
+                'limit': 500
+            }
+        )
         
-        response = requests.get(FOGO_CRUZADO_API, params=params)
-        response.raise_for_status()
-        
-        data = response.json().get('data', [])
-        
-        # Formata os dados para o frontend
-        formatted_data = []
-        for event in data:
-            if event.get('latitude') and event.get('longitude'):
-                formatted_data.append({
-                    'id': event['id'],
-                    'tipo': 'Tiroteio',
-                    'bairro': event.get('neighborhood', 'Desconhecido'),
-                    'lat': float(event['latitude']),
-                    'lng': float(event['longitude']),
-                    'data': event['date'],
-                    'hora': event.get('hour', ''),
-                    'vitimas': event.get('victims', 0),
-                    'descricao': f"Tiroteio em {event.get('neighborhood', 'local desconhecido')}"
-                })
-        
-        return jsonify(formatted_data)
+        if response.status_code == 200:
+            data = response.json().get('data', [])
+            return jsonify([format_event(event) for event in data])
+            
+        return jsonify(get_fallback_data())
         
     except Exception as e:
-        print(f"Erro na API Fogo Cruzado: {str(e)}")
+        debug_log(f"Erro: {str(e)}")
         return jsonify(get_fallback_data())
-
-def get_fallback_data():
-    """Dados de exemplo caso a API falhe"""
-    return [
-        {
-            "id": 1,
-            "tipo": "Tiroteio",
-            "bairro": "Complexo do Alemão",
-            "lat": -22.861808,
-            "lng": -43.252356,
-            "data": datetime.now().strftime('%Y-%m-%d'),
-            "hora": "14:30",
-            "vitimas": 0,
-            "descricao": "Tiroteio no Complexo do Alemão"
-        },
-        {
-            "id": 2,
-            "tipo": "Tiroteio",
-            "bairro": "Rocinha",
-            "lat": -22.988333,
-            "lng": -43.249167,
-            "data": (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d'),
-            "hora": "09:45",
-            "vitimas": 1,
-            "descricao": "Tiroteio na Rocinha com vítima"
-        }
-    ]
 
 @app.route('/api/estatisticas', methods=['GET'])
 def get_estatisticas():
-    """Endpoint para estatísticas de tiroteios"""
     try:
-        data = get_tiroteios().get_json()
+        response = get_tiroteios()
+        data = response.get_json()
         
-        # Processa estatísticas básicas
-        total = len(data)
-        bairros = {}
+        bairros = defaultdict(int)
         vitimas = 0
         
-        for event in data:
-            bairro = event['bairro']
-            bairros[bairro] = bairros.get(bairro, 0) + 1
-            vitimas += event['vitimas']
+        for evento in data:
+            bairro = evento.get('bairro', 'Desconhecido')
+            bairros[bairro] += 1
+            vitimas += evento.get('vitimas', 0)
         
         return jsonify({
-            'total_tiroteios': total,
+            'total_tiroteios': len(data),
             'total_vitimas': vitimas,
-            'por_bairro': bairros,
+            'por_bairro': dict(bairros),
             'ultima_atualizacao': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         })
         
     except Exception as e:
-        print(f"Erro ao gerar estatísticas: {str(e)}")
-        return jsonify({"error": "Erro ao processar estatísticas"}), 500
+        debug_log(f"Erro nas estatísticas: {str(e)}")
+        return jsonify({
+            "total_tiroteios": 0,
+            "total_vitimas": 0,
+            "por_bairro": {},
+            "ultima_atualizacao": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        })
 
 if __name__ == '__main__':
+    debug_log("Iniciando aplicação...")
     app.run(debug=True, port=5000)
