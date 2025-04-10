@@ -11,7 +11,7 @@ body {
     background-color: #181a2e;
     color: white;
     padding: 16px 20px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 5px rgba(0, 132, 255, 0.2);
     position: fixed;
     width: 100%;
     top: 0;
@@ -36,30 +36,19 @@ body {
 .filters-container {
     display: flex;
     align-items: center;
-    /* Alinha verticalmente */
     justify-content: center;
-    /* Centraliza na horizontal */
     flex-wrap: nowrap;
-    /* Impede que os elementos quebrem linha */
     gap: 20px;
-    /* Espaço menor entre os elementos */
     width: fit-content;
-    /* Mantém o tamanho ajustado ao conteúdo */
     margin: 0 auto;
-    /* Centraliza na página */
 }
 
 .filter-group {
     display: flex;
     flex-direction: column;
-    /* Mantém label acima do input */
     align-items: center;
-    /* Centraliza os textos acima */
     text-align: center;
-
 }
-
-
 
 .filter-group label {
     font-size: 0.85em;
@@ -69,18 +58,23 @@ body {
 }
 
 /* Campos de seleção e entrada de texto */
-.filter-group select,
-.filter-group input {
+.filter-group select {
     padding: 8px 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 0.9em;
-    width: 100%;
-    /* Largura flexível */
-    max-width: 200px;
+    width: 200px; /* Largura fixa */
     height: 38px;
     box-sizing: border-box;
     text-align: center;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* Botão de aplicar filtros */
@@ -91,12 +85,10 @@ body {
     padding: 10px 20px;
     border-radius: 4px;
     font-size: 0.9em;
-
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
     margin-top: 20px;
     position: static;
-    ;
 }
 
 #applyFilters:hover {
@@ -108,13 +100,11 @@ body {
 @media (max-width: 1024px) {
     .filters-container {
         justify-content: center;
-        /* Centraliza os filtros */
         gap: 10px;
     }
 
-    .filter-group select,
-    .filter-group input {
-        max-width: 180px;
+    .filter-group select {
+        width: 180px; /* Largura fixa menor para tablets */
     }
 
     #applyFilters {
@@ -134,10 +124,9 @@ body {
         width: 90%;
     }
 
-    .filter-group select,
-    .filter-group input {
-        width: 100%;
-        max-width: 250px;
+    .filter-group select {
+        width: 250px; /* Largura fixa para celulares */
+        max-width: 100%;
     }
 
     #applyFilters {
@@ -149,11 +138,8 @@ body {
 
 /* Responsividade para celulares pequenos */
 @media (max-width: 480px) {
-
-    .filter-group select,
-    .filter-group input {
-        width: 100%;
-        max-width: 100%;
+    .filter-group select {
+        width: 100%; /* Ocupa toda a largura em celulares pequenos */
     }
 
     #applyFilters {
@@ -164,31 +150,19 @@ body {
     }
 }
 
-
 /* MAPA */
 #map {
-
-
     display: flex;
     justify-content: center;
     align-items: center;
     width: 80%;
-
-
     max-width: 1200px;
-    /* Define um limite para a largura */
     margin: 20px auto;
-    /* Centraliza horizontalmente e adiciona espaçamento */
     padding: 15px;
-    /* Espaçamento interno para um visual mais clean */
     background: #fff;
-    /* Fundo branco para destaque */
     border: 3px solid #ddd;
-    /* Borda sutil */
     border-radius: 15px;
-    /* Bordas arredondadas */
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    /* Sombra para um efeito moderno */
 }
 
 /* Estilos para elementos do mapa */
@@ -266,9 +240,7 @@ body {
 @media (max-width: 1024px) {
     #stats-panel {
         top: 120px;
-        /* Move o painel mais para cima */
         right: 20px;
-        /* Aproxima da borda direita */
     }
 }
 
@@ -276,16 +248,11 @@ body {
 @media (max-width: 768px) {
     #stats-panel {
         position: fixed;
-        /* Fixa o painel na tela */
         bottom: 20px;
-        /* Move para a parte inferior */
         right: 50%;
         transform: translateX(50%);
-        /* Centraliza horizontalmente */
         max-width: 90%;
-        /* Aumenta a largura para melhor leitura */
         text-align: center;
-        /* Centraliza o conteúdo */
         padding: 12px;
         border-radius: 12px;
     }
@@ -295,10 +262,8 @@ body {
 @media (max-width: 480px) {
     #stats-panel {
         bottom: 10px;
-        /* Ajusta a posição */
         max-width: 95%;
         font-size: 14px;
-        /* Reduz o tamanho da fonte */
         padding: 10px;
     }
 }
@@ -308,8 +273,6 @@ body {
     overflow-y: auto;
     padding-left: 20px;
 }
-
-/* Adicione ao final do seu arquivo styles.css existente */
 
 /* Notificações */
 .api-notification {
@@ -374,7 +337,6 @@ body {
         transform: translateX(100%);
         opacity: 0;
     }
-
     to {
         transform: translateX(0);
         opacity: 1;

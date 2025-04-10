@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <header id="header">
-        <h1>Mapa Criminal - Rio de Janeiro</h1>
+        <h1>Mapa de Tiroteios - Rio de Janeiro</h1>
     </header>
     <!-- Vincule seu arquivo CSS aqui -->
     <link rel="stylesheet" href="styles.css">
@@ -58,16 +58,18 @@
     <div id="controls">
         <div class="filters-container"> <!-- Nova div container -->
             <div class="filter-group">
-                <label for="crimeType">Tipo de Crime:</label>
+                <label for="crimeType">Tipo de Tiroteio:</label>
                 <select id="crimeType">
                     <option value="">Todos</option>
-                    <option value="Roubo">Roubo</option>
-                    <option value="Furto">Furto</option>
+                    <option value="letais">Tiroteios Letais</option>
+                    <option value="nao_letais">Tiroteios Não Letais</option>
                 </select>
             </div>
             <div class="filter-group">
                 <label for="neighborhood">Bairro:</label>
-                <input type="text" id="neighborhood" placeholder="Filtrar por bairro">
+                <select id="neighborhood">
+                    <option value="">Todos os bairros</option>
+                </select>
             </div>
             <button id="applyFilters">Aplicar Filtros</button>
         </div>

@@ -71,6 +71,7 @@ def get_state_uuid():
 
 def format_event(event):
     """Formata os dados de um evento para o frontend"""
+    vitimas = len(event.get('victims', []))
     return {
         'id': event.get('id'),
         'tipo': 'Tiroteio',
@@ -79,23 +80,36 @@ def format_event(event):
         'lng': float(event.get('longitude', 0)),
         'data': event.get('date', '').split('T')[0],
         'hora': event.get('date', '').split('T')[1][:5] if 'T' in event.get('date', '') else '',
-        'vitimas': len(event.get('victims', [])),
-        'descricao': f"Tiroteio em {event.get('neighborhood', {}).get('name', 'local desconhecido')}",
+        'vitimas': vitimas,
+        'descricao': f"Tiroteio em {event.get('neighborhood', {}).get('name', 'local desconhecido')} - {'Com vítimas' if vitimas > 0 else 'Sem vítimas'}",
         'acao_policial': event.get('policeAction', False)
     }
 
 def get_fallback_data():
-    return [{
-        "id": 1,
-        "tipo": "Tiroteio",
-        "bairro": "Complexo do Alemão",
-        "lat": -22.861808,
-        "lng": -43.252356,
-        "data": datetime.now().strftime('%Y-%m-%d'),
-        "hora": "14:30",
-        "vitimas": 0,
-        "descricao": "Dados locais - API indisponível"
-    }]
+    return [
+        {
+            "id": 1,
+            "tipo": "Tiroteio",
+            "bairro": "Complexo do Alemão",
+            "lat": -22.861808,
+            "lng": -43.252356,
+            "data": datetime.now().strftime('%Y-%m-%d'),
+            "hora": "14:30",
+            "vitimas": 1,
+            "descricao": "Tiroteio com vítima - Dados locais (API indisponível)"
+        },
+        {
+            "id": 2,
+            "tipo": "Tiroteio",
+            "bairro": "Copacabana",
+            "lat": -22.970722,
+            "lng": -43.182365,
+            "data": datetime.now().strftime('%Y-%m-%d'),
+            "hora": "10:15",
+            "vitimas": 0,
+            "descricao": "Tiroteio sem vítimas - Dados locais (API indisponível)"
+        }
+    ]
 
 @app.route('/api/tiroteios', methods=['GET'])
 def get_tiroteios():
