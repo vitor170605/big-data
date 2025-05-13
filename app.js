@@ -5,8 +5,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 let tiroteiosLayer = L.layerGroup().addTo(map);
-let retryCount = 0;
-const MAX_RETRIES = 2;
 let todosBairros = new Set(); // Armazena todos os bairros com ocorrências
 
 // Cores para os marcadores
@@ -17,22 +15,22 @@ function getMarkerColor(vitimas) {
 // Função para carregar os bairros no dropdown
 function loadNeighborhoods(data, manterSelecao = false) {
     const neighborhoodSelect = document.getElementById('neighborhood');
-    const selectedValue = neighborhoodSelect.value; // Guarda o valor selecionado
+    const selectedValue = neighborhoodSelect.value;
 
     // Limpa apenas as opções, mantendo "Todos os bairros"
     while (neighborhoodSelect.options.length > 1) {
         neighborhoodSelect.remove(1);
     }
 
-    // Adiciona cada bairro como uma opção (ordenados alfabeticamente)
-    Array.from(todosBairros).sort((a, b) => a.localeCompare(b)).forEach(bairro => {
-        const option = document.createElement('option');
-        option.value = bairro;
-        option.textContent = bairro;
-        neighborhoodSelect.appendChild(option);
-    });
+    Array.from(todosBairros)
+        .sort((a, b) => a.localeCompare(b))
+        .forEach(bairro => {
+            const option = document.createElement('option');
+            option.value = bairro;
+            option.textContent = bairro;
+            neighborhoodSelect.appendChild(option);
+        });
 
-    // Restaura a seleção anterior se necessário
     if (manterSelecao && selectedValue) {
         neighborhoodSelect.value = selectedValue;
     }
@@ -41,18 +39,15 @@ function loadNeighborhoods(data, manterSelecao = false) {
 // Função principal para carregar dados
 async function loadTiroteios() {
     try {
-        const response = await fetch('https://SEU-BACKEND-RENDER.onrender.com/api/tiroteios');
-        const Data = await response.json();
-        console.log("Resposta da API:", data);
+        const response = await fetch('https://big-data-5j2j.onrender.com/api/tiroteios');
 
-
-
+        // Verifica status antes de processar JSON
         if (!response.ok) {
-            const error = await response.json().catch(() => ({ error: "Erro desconhecido" }));
-            throw new Error(error.message || `Erro ${response.status}`);
+            throw new Error(`Erro ${response.status}: ${response.statusText}`);
         }
 
         const data = await response.json();
+        console.log("Resposta da API:", data);
 
         if (!Array.isArray(data)) {
             console.error("Dados inválidos recebidos:", data);
@@ -64,7 +59,7 @@ async function loadTiroteios() {
         updateStats();
 
     } catch (error) {
-        console.error("Erro ao carregar:", error);
+        console.error("Erro ao carregar tiroteios:", error);
         const fallbackData = getFallbackData();
         updateMapWithData(fallbackData);
         showErrorNotification("Dados em tempo real indisponíveis. Mostrando exemplos.");
@@ -103,14 +98,12 @@ function getFallbackData() {
 function updateMapWithData(data) {
     tiroteiosLayer.clearLayers();
 
-    // Atualiza a lista completa de bairros
     data.forEach(evento => {
         if (evento.bairro && evento.bairro.trim() !== '') {
             todosBairros.add(evento.bairro);
         }
     });
 
-    // Carrega os bairros mantendo a seleção atual
     loadNeighborhoods(data, true);
 
     data.forEach(evento => {
@@ -124,20 +117,24 @@ function updateMapWithData(data) {
         }).addTo(tiroteiosLayer);
 
         marker.bindPopup(`
-            <b>${evento.tipo}</b><br>
-            <b>Bairro:</b> ${evento.bairro}<br>
-            <b>Data:</b> ${evento.data} ${evento.hora}<br>
-            <b>Vítimas:</b> ${evento.vitimas}<br>
-            <small>${evento.descricao}</small>
-        `);
+      <b>${evento.tipo}</b><br>
+      <b>Bairro:</b> ${evento.bairro}<br>
+      <b>Data:</b> ${evento.data} ${evento.hora}<br>
+      <b>Vítimas:</b> ${evento.vitimas}<br>
+      <small>${evento.descricao}</small>
+    `);
     });
 }
 
 // Atualiza estatísticas
 function updateStats() {
     fetch('https://big-data-5j2j.onrender.com/api/estatisticas')
-
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erro ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(stats => {
             document.getElementById('total-tiroteios').textContent = stats.total_tiroteios;
             document.getElementById('total-vitimas').textContent = stats.total_vitimas;
@@ -146,13 +143,15 @@ function updateStats() {
             const bairrosList = document.getElementById('bairros-list');
             bairrosList.innerHTML = '';
 
-            for (const [bairro, count] of Object.entries(stats.por_bairro)) {
+            Object.entries(stats.por_bairro).forEach(([bairro, count]) => {
                 const li = document.createElement('li');
                 li.textContent = `${bairro}: ${count} ocorrência(s)`;
                 bairrosList.appendChild(li);
-            }
+            });
         })
-        .catch(error => console.error("Erro nas estatísticas:", error));
+        .catch(error => {
+            console.error("Erro nas estatísticas:", error);
+        });
 }
 
 // Atualiza estatísticas para dados filtrados
@@ -173,11 +172,11 @@ function updateStatsForFilteredData(data) {
     const bairrosList = document.getElementById('bairros-list');
     bairrosList.innerHTML = '';
 
-    for (const [bairro, count] of Object.entries(bairros)) {
+    Object.entries(bairros).forEach(([bairro, count]) => {
         const li = document.createElement('li');
         li.textContent = `${bairro}: ${count} ocorrência(s)`;
         bairrosList.appendChild(li);
-    }
+    });
 }
 
 // Notificação de erro
@@ -185,9 +184,9 @@ function showErrorNotification(message) {
     const notification = document.createElement('div');
     notification.className = 'api-notification error';
     notification.innerHTML = `
-        <span class="notification-message">${message}</span>
-        <button class="close-btn">&times;</button>
-    `;
+    <span class="notification-message">${message}</span>
+    <button class="close-btn">&times;</button>
+  `;
 
     notification.querySelector('.close-btn').addEventListener('click', () => {
         notification.remove();
@@ -200,84 +199,44 @@ function showErrorNotification(message) {
     }, 5000);
 }
 
-// Opção de recarregar
-function showReloadOption() {
-    const reloadDiv = document.createElement('div');
-    reloadDiv.className = 'reload-panel';
-    reloadDiv.innerHTML = `
-        <p>Não foi possível carregar os dados.</p>
-        <button id="reload-btn">Tentar Novamente</button>
-    `;
-
-    reloadDiv.querySelector('#reload-btn').addEventListener('click', () => {
-        retryCount = 0;
-        reloadDiv.remove();
-        loadTiroteios();
-    });
-
-    document.body.appendChild(reloadDiv);
-}
-
 // Filtros
 document.getElementById('applyFilters').addEventListener('click', async () => {
     try {
         const bairro = document.getElementById('neighborhood').value;
         const tipo = document.getElementById('crimeType').value;
 
-        const response = await fetch('https://big-data-5j2j.onrender.com/api/estatisticas')
-
-
-        if (!response.ok) throw new Error('Falha ao carregar dados');
+        const response = await fetch('https://big-data-5j2j.onrender.com/api/tiroteios');
+        if (!response.ok) throw new Error(`Erro ${response.status}: ${response.statusText}`);
 
         let data = await response.json();
+        console.log("Resposta da API (filtro):", data);
 
-        // Atualiza a lista completa de bairros
+        if (!Array.isArray(data)) {
+            showErrorNotification("Dados inválidos da API.");
+            return;
+        }
+
+        // Atualiza bairros
         data.forEach(evento => {
             if (evento.bairro && evento.bairro.trim() !== '') {
                 todosBairros.add(evento.bairro);
             }
         });
 
-        // Filtro por bairro
-        if (bairro) {
-            data = data.filter(evento => evento.bairro === bairro);
-        }
+        // Filtra por bairro e tipo
+        let filtrados = data;
+        if (bairro) filtrados = filtrados.filter(e => e.bairro === bairro);
+        if (tipo === 'letais') filtrados = filtrados.filter(e => e.vitimas > 0);
+        else if (tipo === 'nao_letais') filtrados = filtrados.filter(e => e.vitimas === 0);
 
-        // Filtro por tipo de tiroteio
-        if (tipo === 'letais') {
-            data = data.filter(evento => evento.vitimas > 0);
-        } else if (tipo === 'nao_letais') {
-            data = data.filter(evento => evento.vitimas === 0);
-        }
-
-        // Atualiza o mapa com os dados filtrados
-        tiroteiosLayer.clearLayers();
-        data.forEach(evento => {
-            const marker = L.circleMarker([evento.lat, evento.lng], {
-                radius: 8,
-                fillColor: getMarkerColor(evento.vitimas),
-                color: '#000',
-                weight: 1,
-                opacity: 1,
-                fillOpacity: 0.8
-            }).addTo(tiroteiosLayer);
-
-            marker.bindPopup(`
-                <b>${evento.tipo}</b><br>
-                <b>Bairro:</b> ${evento.bairro}<br>
-                <b>Data:</b> ${evento.data} ${evento.hora}<br>
-                <b>Vítimas:</b> ${evento.vitimas}<br>
-                <small>${evento.descricao}</small>
-            `);
-        });
-
-        updateStatsForFilteredData(data);
-
-        // Mantém a lista completa de bairros e a seleção atual
+        // Atualiza mapa e estatísticas
+        updateMapWithData(filtrados);
+        updateStatsForFilteredData(filtrados);
         loadNeighborhoods(data, true);
 
     } catch (error) {
-        showErrorNotification("Erro ao filtrar. " + error.message);
+        console.error("Erro ao filtrar:", error);
+        showErrorNotification("Erro ao filtrar: " + error.message);
     }
 });
 
