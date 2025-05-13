@@ -11,10 +11,11 @@ load_dotenv()
 
 app = Flask(__name__)
 CORS(app, origins=[
-    "https://big-data-5j2j.onrender.com",   
-    "https://meu-projeto.netlify.app",     
-    "http://127.0.0.1:5500"                 
+    "https://big-data-5j2j.onrender.com",
+    "https://meu-projeto.netlify.app",
+    "http://127.0.0.1:5500"
 ])
+
 # Configurações
 API_BASE = "https://api-service.fogocruzado.org.br/api/v2"
 AUTH_URL = f"{API_BASE}/auth/login"
