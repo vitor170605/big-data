@@ -177,6 +177,9 @@ def get_estatisticas():
             "por_bairro": {},
             "ultima_atualizacao": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         })
+@app.route("/")
+def index():
+    return "<h1>API de Tiroteios no RJ está no ar!</h1><p>Use <code>/api/tiroteios</code> ou <code>/api/estatisticas</code></p>"
 
 if __name__ == '__main__':
     debug_log("Iniciando aplicação...")
