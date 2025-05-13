@@ -41,7 +41,10 @@ function loadNeighborhoods(data, manterSelecao = false) {
 // Função principal para carregar dados
 async function loadTiroteios() {
     try {
-        const response = await fetch('https://big-data-5j2j.onrender.com/api/tiroteios?_=' + Date.now());
+        const response = await fetch('https://SEU-BACKEND-RENDER.onrender.com/api/tiroteios');
+        const Data = await response.json();
+        console.log("Resposta da API:", data);
+
 
 
         if (!response.ok) {
